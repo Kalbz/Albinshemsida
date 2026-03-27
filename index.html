@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engbl0m | Hem</title>
+  <meta name="description" content="Engbl0m delar raka tips om att spara pengar, tjäna pengar och bygga bättre privatekonomi.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">Engbl0m</a>
+      <nav class="site-nav" aria-label="Huvudnavigation">
+        <a href="index.html">Hem</a>
+        <a href="#blog">Blog</a>
+        <a href="sparapengar.html">Spara pengar</a>
+        <a href="tjanapengar.html">Tjäna pengar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero section">
+      <div class="container hero-grid">
+        <div class="hero-visual">
+          <div class="portrait-frame">
+            <img src="assets/images/Skurupscapital.jpg" alt="Porträtt av Engbl0m">
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <h1>Vem är Engbl0m och varför ska jag lyssna på honom?</h1>
+          <p>Engbl0m delar praktiska idéer för dig som vill få bättre koll på pengarna, kapa onödiga kostnader och hitta smarta sätt att bygga upp nya inkomster.</p>
+          <p>Fokus ligger på tydliga råd, enkla verktyg och innehåll som går att använda direkt, oavsett om du vill börja spara mer varje månad eller skapa fler vägar till extra pengar.</p>
+        </div>
+
+        <div class="hero-socials" aria-label="Sociala länkar">
+          <a href="https://x.com" target="_blank" rel="noreferrer">X</a>
+          <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section blog-section" id="blog">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <p class="section-tag">Senaste tankarna</p>
+            <h2>Blog</h2>
+          </div>
+          <div class="blog-controls" aria-label="Filtrera blogginlägg">
+            <label>
+              <span>Månad</span>
+              <select id="blog-month-filter">
+                <option value="all">Alla månader</option>
+              </select>
+            </label>
+            <label>
+              <span>Från</span>
+              <input id="blog-start-date" type="date">
+            </label>
+            <label>
+              <span>Till</span>
+              <input id="blog-end-date" type="date">
+            </label>
+          </div>
+        </div>
+
+        <div id="blog-list" class="blog-list" aria-live="polite"></div>
+        <div class="blog-footer">
+          <p id="blog-results-meta" class="blog-meta"></p>
+          <button id="blog-toggle" class="button button-secondary" type="button" hidden>Se alla</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-grid">
+          <article class="cta-card">
+            <p class="section-tag">Sänk kostnaderna</p>
+            <h2>Spara pengar</h2>
+            <p>Tips om budget, abonnemang, verktyg, erbjudanden och vanor som gör att mer blir kvar varje månad.</p>
+            <a class="button" href="sparapengar.html">Ta mig dit</a>
+          </article>
+          <article class="cta-card">
+            <p class="section-tag">Bygg fler intäkter</p>
+            <h2>Tjäna pengar</h2>
+            <p>Idéer för sidoprojekt, digitala möjligheter, frilansupplägg och enkla sätt att komma igång online.</p>
+            <a class="button" href="tjanapengar.html">Ta mig dit</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Engbl0m</p>
+      <div class="footer-links">
+        <a href="https://x.com" target="_blank" rel="noreferrer">X</a>
+        <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/blog.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

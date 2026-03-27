@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Porträttsplats för Engbl0m</title>
+  <desc id="desc">Grafisk placeholder med ett stiliserat porträtt i svart, vitt och grönt.</desc>
+  <rect width="800" height="1000" fill="#f3f5ef"/>
+  <rect x="60" y="60" width="680" height="880" rx="34" fill="#dfe8d9"/>
+  <circle cx="400" cy="350" r="150" fill="#101310"/>
+  <path d="M255 585c38-58 91-87 145-87s107 29 145 87l61 242H194z" fill="#101310"/>
+  <path d="M284 335c18-84 87-140 169-140 52 0 90 19 122 53-7-105-80-168-187-168-99 0-180 79-180 177 0 53 21 101 55 136-2-17-2-37 21-58z" fill="#187a35"/>
+  <rect x="122" y="725" width="556" height="132" rx="22" fill="#ffffff"/>
+  <text x="400" y="784" fill="#101310" font-family="Arial, sans-serif" font-size="52" font-weight="700" text-anchor="middle">ENGBL0M</text>
+  <text x="400" y="832" fill="#187a35" font-family="Arial, sans-serif" font-size="26" text-anchor="middle">PRIVATEKONOMI OCH PRAKTISKA TIPS</text>
+</svg>
