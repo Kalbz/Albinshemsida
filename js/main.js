@@ -359,7 +359,7 @@
       imageAlt: "Kamera och utrustning för skapande av digitalt innehåll"
     },
     {
-      title: "Tjäna upp mot 400 kr i Krypto",
+      title: "Tjäna 400 kr i Krypto",
       description: "Skapa ett nytt konto hos Coinbase för att ta del av detta grymma erbjudande",
       url: "https://coinbase.com/join/VKXBBYJ?src=ios-link",
       cta: "Se hit",
