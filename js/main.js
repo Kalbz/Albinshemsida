@@ -38,8 +38,16 @@
     const endInput = document.getElementById("blog-end-date");
     const toggle = document.getElementById("blog-toggle");
     const meta = document.getElementById("blog-results-meta");
+    const modal = document.getElementById("blog-modal");
+    const modalBackdrop = document.getElementById("blog-modal-backdrop");
+    const modalClose = document.getElementById("blog-modal-close");
+    const modalCategory = document.getElementById("blog-modal-category");
+    const modalDate = document.getElementById("blog-modal-date");
+    const modalTitle = document.getElementById("blog-modal-title");
+    const modalContent = document.getElementById("blog-modal-content");
 
     let expanded = false;
+    let lastTrigger = null;
 
     posts.sort((a, b) => b.date.localeCompare(a.date));
 
@@ -81,18 +89,20 @@
         const card = document.createElement("article");
         card.className = "blog-card";
         card.innerHTML = `
-          <div class="blog-card-main">
-            <div class="meta-row">
-              <span class="pill">${post.category || "Blogg"}</span>
-              <span>${formatDate(post.date)}</span>
+          <button class="blog-card-button" type="button" aria-label="Öppna inlägget ${post.title}">
+            <div class="blog-card-main">
+              <div class="meta-row">
+                <span class="pill">${post.category || "Blogg"}</span>
+                <span>${formatDate(post.date)}</span>
+              </div>
+              <h3>${post.title}</h3>
+              <p>${post.excerpt}</p>
+              <span class="blog-card-hint">Klicka för att läsa hela inlägget</span>
             </div>
-            <h3>${post.title}</h3>
-            <p>${post.excerpt}</p>
-          </div>
-          <div class="blog-card-action">
-            <a class="button-secondary" href="${post.link}">Läs mer</a>
-          </div>
+          </button>
         `;
+        const trigger = card.querySelector(".blog-card-button");
+        trigger.addEventListener("click", () => openModal(post, trigger));
         list.appendChild(card);
       });
 
@@ -102,6 +112,141 @@
       meta.textContent = hasMoreThanThree && !expanded
         ? `${visiblePosts.length} av ${filteredPosts.length} inlägg visas.`
         : `${filteredPosts.length} inlägg visas.`;
+    }
+
+    function createBlogBlock(block) {
+      if (typeof block === "string") {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = block;
+        return paragraph;
+      }
+
+      if (!block || typeof block !== "object") {
+        return null;
+      }
+
+      switch (block.type) {
+        case "paragraph": {
+          const paragraph = document.createElement("p");
+          paragraph.textContent = block.text || "";
+          return paragraph;
+        }
+        case "heading": {
+          const heading = document.createElement("h4");
+          heading.className = "blog-block-heading";
+          heading.textContent = block.text || "";
+          return heading;
+        }
+        case "quote": {
+          const quote = document.createElement("blockquote");
+          quote.className = "blog-block-quote";
+          quote.textContent = block.text || "";
+          return quote;
+        }
+        case "image": {
+          const figure = document.createElement("figure");
+          figure.className = "blog-media-card";
+
+          const image = document.createElement("img");
+          image.src = block.src || "";
+          image.alt = block.alt || "";
+          image.loading = "lazy";
+          figure.appendChild(image);
+
+          if (block.caption) {
+            const caption = document.createElement("figcaption");
+            caption.textContent = block.caption;
+            figure.appendChild(caption);
+          }
+
+          return figure;
+        }
+        case "video": {
+          const figure = document.createElement("figure");
+          figure.className = "blog-media-card";
+
+          if (block.embed) {
+            const frameWrap = document.createElement("div");
+            frameWrap.className = "blog-video-embed";
+
+            const frame = document.createElement("iframe");
+            frame.src = block.embed;
+            frame.title = block.title || "Video";
+            frame.loading = "lazy";
+            frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            frame.allowFullscreen = true;
+            frameWrap.appendChild(frame);
+            figure.appendChild(frameWrap);
+          } else if (block.src) {
+            const video = document.createElement("video");
+            video.src = block.src;
+            video.controls = true;
+            video.preload = "metadata";
+            if (block.poster) {
+              video.poster = block.poster;
+            }
+            figure.appendChild(video);
+          }
+
+          if (block.caption) {
+            const caption = document.createElement("figcaption");
+            caption.textContent = block.caption;
+            figure.appendChild(caption);
+          }
+
+          return figure;
+        }
+        case "link": {
+          const link = document.createElement("a");
+          link.className = "blog-link-card";
+          link.href = block.href || "#";
+          link.target = "_blank";
+          link.rel = "noreferrer";
+          link.innerHTML = `
+            <span class="blog-link-label">${block.label || "Extern länk"}</span>
+            <strong>${block.title || block.href || ""}</strong>
+            ${block.description ? `<span>${block.description}</span>` : ""}
+          `;
+          return link;
+        }
+        default: {
+          const fallback = document.createElement("p");
+          fallback.textContent = block.text || "";
+          return fallback;
+        }
+      }
+    }
+
+    function openModal(post, trigger) {
+      if (!modal) return;
+
+      lastTrigger = trigger;
+      modalCategory.textContent = post.category || "Blogg";
+      modalDate.textContent = formatDate(post.date);
+      modalTitle.textContent = post.title;
+      modalContent.innerHTML = "";
+
+      const contentBlocks = Array.isArray(post.content) ? post.content : [post.excerpt];
+      contentBlocks.forEach((paragraph) => {
+        const node = createBlogBlock(paragraph);
+        if (node) {
+          modalContent.appendChild(node);
+        }
+      });
+
+      modal.hidden = false;
+      document.body.classList.add("modal-open");
+      modalClose.focus();
+    }
+
+    function closeModal() {
+      if (!modal || modal.hidden) return;
+
+      modal.hidden = true;
+      document.body.classList.remove("modal-open");
+      if (lastTrigger) {
+        lastTrigger.focus();
+      }
     }
 
     [monthFilter, startInput, endInput].forEach((element) => {
@@ -120,6 +265,20 @@
       render();
     });
 
+    if (modalClose) {
+      modalClose.addEventListener("click", closeModal);
+    }
+
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener("click", closeModal);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
     render();
   }
 
@@ -129,7 +288,7 @@
 
     items.forEach((item) => {
       const article = document.createElement("article");
-      article.className = "resource-card";
+      article.className = item.secondaryImage ? "resource-card resource-card-dual" : "resource-card";
       article.innerHTML = `
         <a class="resource-image" href="${item.url}" target="_blank" rel="noreferrer">
           <img src="${item.image}" alt="${item.imageAlt}">
@@ -142,6 +301,7 @@
             <a class="button" href="${item.url}" target="_blank" rel="noreferrer">${item.cta}</a>
           </div>
         </div>
+        ${item.secondaryImage ? `<a class="resource-image resource-image-secondary" href="${item.url}" target="_blank" rel="noreferrer"><img src="${item.secondaryImage}" alt="${item.secondaryImageAlt || item.imageAlt}"></a>` : ""}
       `;
       list.appendChild(article);
     });
@@ -149,62 +309,92 @@
 
   const savingsItems = [
     {
-      title: "Budgetverktyg för bättre månadskoll",
-      description: "Ett exempel på resurs för att strukturera utgifter, sätta mål och få syn på vad som faktiskt går att minska.",
-      url: "https://www.google.com",
-      cta: "Besök",
-      tag: "Verktyg",
-      image: "assets/images/savings-budget.svg",
+      title: "Cashback is king",
+      description: "Ditt absoluta favorit verktyg för pengar tillbaka på varje köp",
+      url: "https://www.refunder.se/b/Engblom",
+      cta: "Se hit",
+      tag: "Cashback",
+      image: "assets/images/Refunder_icon.png",
       imageAlt: "Anteckningar och kalkylblad för budgetplanering"
     },
     {
       title: "Guide till smartare vardagsbeslut",
-      description: "Placeholder-innehåll för tips om abonnemang, matkostnader och rutiner som kan spara pengar utan onödig komplexitet.",
-      url: "https://www.google.com",
-      cta: "Läs mer",
-      tag: "Guide",
-      image: "assets/images/savings-guide.svg",
+      description: "",
+      url: "",
+      cta: "Se hit",
+      tag: "Deal",
+      image: "assets/images/Stabelo_icon.png",
       imageAlt: "Person som granskar sina kostnader vid ett skrivbord"
     },
     {
-      title: "Rabatter, deals och tjänster att jämföra",
-      description: "En enkel plats för framtida affiliate-länkar till tjänster, prisjämförelser och verktyg som kan ge lägre månadskostnader.",
-      url: "https://www.google.com",
-      cta: "Se resurs",
+      title: "Se över ditt elavtal",
+      description: "Uttnyttja elavtalserbjudanden. Hos Refunder kan man t.ex få 1000 kr cashback som ny kund på de flesta elbolag.",
+      url: "https://www.refunder.se/b/Engblom",
+      cta: "Se hit",
       tag: "Deal",
-      image: "assets/images/savings-deals.svg",
+      image: "assets/images/El_icon.webp",
       imageAlt: "Kort och kvitton som symboliserar smartare köp"
     }
   ];
 
   const incomeItems = [
     {
-      title: "Videos om sidoprojekt som går att starta direkt",
-      description: "Placeholder för innehåll om små uppdrag, digitala tjänster och idéer som kan testas utan stor startkostnad.",
-      url: "https://www.youtube.com",
-      cta: "Öppna video",
-      tag: "Video",
-      image: "assets/images/income-sidehustle.svg",
-      imageAlt: "Laptop och arbetsyta för digitalt sidoprojekt"
+      title: "Tjäna pengar på enkäter",
+      description: "Perfekta extraknäcket på arbetsrasterna, utbetalt direkt på Swish, anmäl dig till undersökningar för att tjäna större summor",
+      url: "https://again.app/se/get/albin_benjamin_e",
+      cta: "Se hit",
+      tag: "Enkäter",
+      image: "assets/images/Again_icon.png",
+      imageAlt: "Laptop och arbetsyta för digitalt sidoprojekt",
+      secondaryImage: "assets/images/Again_clickbait.jpeg",
+      secondaryImageAlt: "Again Clickbait ikon"
     },
     {
-      title: "Frilansresurser för nybörjare",
-      description: "Ett enkelt block för framtida länkar till guider, plattformar och resurser för att sälja kompetens online.",
-      url: "https://www.youtube.com",
-      cta: "Läs mer",
-      tag: "Frilans",
-      image: "assets/images/income-freelance.svg",
+      title: "Få gratis aktier och krypto vid din första insättning",
+      description: "Följ länken för €10 gratis i Krypto",
+      url: "https://join.robinhood.com/eu_crypto/albine-7825591/",
+      cta: "Se hit",
+      tag: "Krypto",
+      image: "assets/images/Robinhood_icon.png",
+      imageAlt: "Kamera och utrustning för skapande av digitalt innehåll"
+    },
+    {
+      title: "Tjäna upp mot 400 kr i Krypto",
+      description: "Skapa ett nytt konto hos Coinbase för att ta del av detta grymma erbjudande",
+      url: "https://coinbase.com/join/VKXBBYJ?src=ios-link",
+      cta: "Se hit",
+      tag: "Krypto",
+      image: "assets/images/Coinbase_logo.png",
       imageAlt: "Team som planerar digitalt arbete tillsammans"
     },
     {
-      title: "Idéer inom creator economy",
-      description: "Placeholder för resurser om innehåll, annonser, affiliate och produkter som kan byggas upp över tid.",
-      url: "https://www.youtube.com",
-      cta: "Se guide",
-      tag: "Creator",
-      image: "assets/images/income-creator.svg",
+      title: "Hämta 101 kr på tre minuter",
+      description: "Som ny kund får du 101 kr gratis genom Northmill som går att ta ut direkt genom Swish",
+      url: "https://www.northmill.com/se/kort/referral?referralCode=NORTH0QLA8",
+      cta: "Se hit",
+      tag: "Bank",
+      image: "assets/images/Northmill_logo.jpeg",
+      imageAlt: "Kamera och utrustning för skapande av digitalt innehåll"
+    },
+    {
+      title: "Öppna konto och få gratis pengar till pensionen",
+      description: "Få 100 kr som ny kund hos NOWO just nu samt få 50 kr exta vid använding av länken",
+      url: "https://itunes.apple.com/se/app/nowo/id1048953177",
+      cta: "Se hit",
+      tag: "Bank",
+      image: "assets/images/NOWO_icon.png",
+      imageAlt: "Kamera och utrustning för skapande av digitalt innehåll"
+    },
+    {
+      title: "Tjäna 500/250 kr som ny kund via Refunder",
+      description: "Studenter får 500 kr, övriga får 250 kr. OBS använd refunder länken för 50 kr extra",
+      url: "https://itunes.apple.com/se/app/nowo/id1048953177",
+      cta: "Se hit",
+      tag: "Bank",
+      image: "assets/images/Levler_icon.png",
       imageAlt: "Kamera och utrustning för skapande av digitalt innehåll"
     }
+
   ];
 
   if (page === "home") {
@@ -219,3 +409,5 @@
     renderResources(incomeItems);
   }
 })();
+
+
